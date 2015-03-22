@@ -11,7 +11,6 @@
 
 // Declare timer object
 Timer t;
-unsigned long event_list_counter;
 
 // Event type will cycle through the possible 
 // Type is one of the following:
@@ -25,6 +24,7 @@ byte tag[] = {0x10, 0x20, 0x30, 0x40};
 
 // Using implicit zero-initialisation  
 unsigned long EventList::event_list_counter;
+
 // Declare list of events
 EventList eventList(&t, 4);
 
@@ -74,4 +74,5 @@ void DumpLogging() {
     Serial.println("---------");
     event->ToSerial();
   }    
+  Serial.println("---------");
 }
