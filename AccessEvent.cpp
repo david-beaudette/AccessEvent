@@ -7,20 +7,24 @@
 
 #include "AccessEvent.h"
 
-EventList::EventList(Timer *t) {
+EventList::EventList(Timer *t, int max_size) {
   // Reset FIFO and counter
-  _list_start = 0;
-  _list_stop  = 0; 
-  _isempty    = 1;  
-  event_list_counter = 0UL;
+  _list_max_size = max_size;
+  _list = new AccessEvent[max_size];
+  _list_start    = 0;
+  _list_stop     = 0; 
+  _isempty       = 1;
   
-  // Save timer instance
+  // Set timer instance
   _t = t;
-  
+  int trackEvent = _t->every(1000, TrackEventTime);
 }
 
+EventList::~EventList() {
+  delete[] _list;
+}
 
-AccessEvent* EventList::getEvent(void) {
+AccessEvent* EventList::getEvent() {
   if(_isempty) return NULL;
   // Retrieve the oldest event 
   AccessEvent *oldest = &_list[_list_start];
@@ -32,7 +36,7 @@ AccessEvent* EventList::getEvent(void) {
   
   // Remove event from FIFO
   _list_start += 1;  
-  if(_list_start >= MAX_NUM_EVENTS) {
+  if(_list_start >= _list_max_size) {
     // Wrap around
     _list_start = 0;
   }
@@ -47,9 +51,9 @@ AccessEvent* EventList::getEvent(void) {
   return oldest;
 }
 
-int EventList::addEvent(byte type, byte *tag_id) {
+int EventList::addEvent(byte type, byte *tag) {
   // Check FIFO state
-  if(getListSize() == MAX_NUM_EVENTS) {
+  if(getListSize() == _list_max_size) {
     // FIFO full
     return -1;
   }
@@ -57,11 +61,11 @@ int EventList::addEvent(byte type, byte *tag_id) {
   // Assign event information
   _list[_list_stop].type = type;
   _list[_list_stop].time = event_list_counter;
-  memcpy(&_list[_list_stop].tag_id[0], tag_id, 4 * sizeof(byte));
+  memcpy(&_list[_list_stop].tag[0], tag, 4 * sizeof(byte));
   
   // Add event to FIFO
   _list_stop += 1;
-  if(_list_stop >= MAX_NUM_EVENTS) {
+  if(_list_stop >= _list_max_size) {
     // Wrap around
     _list_stop = 0;
   }
@@ -80,7 +84,35 @@ int EventList::getListSize() {
     return (_list_stop - _list_start);
   }
   else {
-    return (_list_stop + (MAX_NUM_EVENTS - _list_start));
+    return (_list_stop + (_list_max_size - _list_start));
   }
+}
+
+void AccessEvent::ToSerial() {
+  // Print time
+  Serial.print("Event happened ");
+  Serial.print(this->time);
+  Serial.println(" seconds ago.");
+  // Print type
+  Serial.print("The type of the event is: ");
+  Serial.println(this->type, HEX);
+  // Print tag id
+  PrintTag(this->tag);
+}
+
+void AccessEvent::PrintTag(byte *serial) {
+  Serial.println("The serial nb of the tag is:");
+  for (int i = 0; i < 3; i++) {
+    Serial.print(serial[i], HEX);
+    Serial.print(", ");
+  }
+  Serial.println(serial[3], HEX);
+}
+
+void TrackEventTime() {
+  // Increment counter 
+  EventList::event_list_counter += 1UL;
+  Serial.print("Event list counter value = ");
+  Serial.println(EventList::event_list_counter);
 }
 

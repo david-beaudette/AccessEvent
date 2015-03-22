@@ -12,9 +12,7 @@
 #include <Event.h>
 #include <Timer.h>
 
-#define MAX_NUM_EVENTS 100
 
-extern unsigned long event_list_counter;
 
 // Represents one access event
 // Type is one of the following:
@@ -27,21 +25,26 @@ class AccessEvent {
   public:
     byte type;
     unsigned long time;
-    byte tag_id[4];
-    
+    byte tag[4];
+    void ToSerial();
+  private:
+    void PrintTag(byte *tag);
 };
 
 // Simple FIFO buffer of access events
 // Tracks read and write event time
 class EventList {
   public:
-    EventList(Timer *t);
-    int getListSize(void);
-    AccessEvent* getEvent(void);
-    int addEvent(byte type, byte *tag_id);
+    EventList(Timer *t, int max_size);
+   ~EventList();
+    int getListSize();
+    AccessEvent* getEvent();
+    int addEvent(byte type, byte *tag);
+    static unsigned long event_list_counter;
     
   private:
-    AccessEvent _list[MAX_NUM_EVENTS];
+    AccessEvent *_list;
+    int _list_max_size;
     int _list_start;
     int _list_stop;
     Timer *_t;
@@ -49,5 +52,6 @@ class EventList {
      
 };
 
-
+void TrackEventTime();
+    
 #endif // __ACCESSEVENT__
