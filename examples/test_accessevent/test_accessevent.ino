@@ -11,6 +11,7 @@
 
 // Declare timer object
 Timer t;
+unsigned long event_list_counter;
 
 // Event type will cycle through the possible 
 // Type is one of the following:
@@ -25,7 +26,7 @@ byte tag[] = {0x10, 0x20, 0x30, 0x40};
 // Using implicit zero-initialisation  
 unsigned long EventList::event_list_counter;
 // Declare list of events
-EventList eventList(&t, 15);
+EventList eventList(&t, 4);
 
 void setup() {
   Serial.begin(115200);
@@ -37,6 +38,7 @@ void setup() {
   int createEvent = t.every(3000, CreateEvent);
   
   // Create an event to dump logging to screen every 20 s
+  // 2 events should be lost
   int dumpEvent = t.every(20000, DumpLogging);
 }
 
