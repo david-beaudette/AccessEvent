@@ -25,14 +25,19 @@ EventList::~EventList() {
 }
 
 AccessEvent* EventList::getEvent() {
-  if(_isempty) return NULL;
+  // If the list is empty, just reset the counter
+  if(_isempty) { 
+    EventList::event_list_counter = 0UL;
+    return NULL; 
+  }
   // Retrieve the oldest event 
   AccessEvent *oldest = &_list[_list_start];
   
   // The desired time is the number of seconds since the 
   // event happened. This is computed from the current counter
   // value minus the counter value when the event happened. 
-  _list[_list_start].time = event_list_counter - _list[_list_start].time;
+  _list[_list_start].time = EventList::event_list_counter - 
+                            _list[_list_start].time;
   
   // Remove event from FIFO
   _list_start += 1;  
@@ -43,7 +48,7 @@ AccessEvent* EventList::getEvent() {
   
   // If this was the last recorded event, reset counter
   if(_list_start == _list_stop) {
-    event_list_counter  = 0UL;
+    EventList::event_list_counter = 0UL;
     _isempty = 1;  
   }
   
@@ -60,7 +65,7 @@ int EventList::addEvent(byte type, byte *tag) {
   
   // Assign event information
   _list[_list_stop].type = type;
-  _list[_list_stop].time = event_list_counter;
+  _list[_list_stop].time = EventList::event_list_counter;
   memcpy(&_list[_list_stop].tag[0], tag, 4 * sizeof(byte));
   
   // Add event to FIFO
@@ -71,7 +76,7 @@ int EventList::addEvent(byte type, byte *tag) {
   }
   if(_isempty) {
     // Reset counter
-    event_list_counter = 0UL;
+    EventList::event_list_counter = 0UL;
     _isempty = 0;
   }
   
@@ -79,7 +84,11 @@ int EventList::addEvent(byte type, byte *tag) {
 }
 
 int EventList::getListSize() {
-  if(_isempty) return 0;
+  // If the list is empty, just reset the counter
+  if(_isempty) { 
+    EventList::event_list_counter = 0UL;
+    return 0; 
+  }
   if(_list_stop > _list_start) {
     return (_list_stop - _list_start);
   }
@@ -112,7 +121,7 @@ void AccessEvent::PrintTag(byte *serial) {
 void TrackEventTime() {
   // Increment counter 
   EventList::event_list_counter += 1UL;
-  Serial.print("Event list counter value = ");
-  Serial.println(EventList::event_list_counter);
+  //Serial.print("Event list counter value = ");
+  //Serial.println(EventList::event_list_counter);
 }
 
