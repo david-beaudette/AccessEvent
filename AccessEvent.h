@@ -12,8 +12,6 @@
 #include <Event.h>
 #include <Timer.h>
 
-
-
 // Represents one access event
 // Type is one of the following:
 //  0x30 : ‘Attempt’ (first authorization in double authorization mode).
