@@ -37,6 +37,7 @@ class EventList {
    ~EventList();
     int getListSize();
     AccessEvent* getEvent();
+    int eraseEvent();
     int addEvent(byte type, byte *tag);
     static unsigned long event_list_counter;
     

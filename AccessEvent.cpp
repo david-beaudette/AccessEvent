@@ -24,6 +24,7 @@ EventList::~EventList() {
   delete[] _list;
 }
 
+/** Retrieves the oldest event from the list. **/
 AccessEvent* EventList::getEvent() {
   // If the list is empty, just reset the counter
   if(_isempty) { 
@@ -39,6 +40,16 @@ AccessEvent* EventList::getEvent() {
   _list[_list_start].time = EventList::event_list_counter - 
                             _list[_list_start].time;
   
+  // Return event 
+  return oldest;
+}
+
+/** Erases the oldest event from the list. **/
+int EventList::eraseEvent() {
+  // If the list is empty, just reset the counter
+  if(_isempty) { 
+    return 0; 
+  }
   // Remove event from FIFO
   _list_start += 1;  
   if(_list_start >= _list_max_size) {
@@ -53,7 +64,7 @@ AccessEvent* EventList::getEvent() {
   }
   
   // Return event 
-  return oldest;
+  return 1;
 }
 
 int EventList::addEvent(byte type, byte *tag) {
